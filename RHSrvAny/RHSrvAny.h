@@ -1,3 +1,4 @@
+/* -*- Mode: C; tab-width: 4 -*- */
 /* RHSrvAny - Turn any Windows program into a Windows service.
  * Written by Yuval Kashtan.
  * Copyright (C) 2010 Red Hat Inc.
