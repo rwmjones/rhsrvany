@@ -73,7 +73,7 @@ BEGIN
             VALUE "FileDescription", "Red Hat Service Application"
             VALUE "FileVersion", "1, 0, 0, 1"
             VALUE "InternalName", "RHSrvAny"
-            VALUE "LegalCopyright", "Copyright (C) 2010 Red Hat Inc. All rights reserved."
+            VALUE "LegalCopyright", "Copyright (C) 2010 Red Hat Inc."
             VALUE "OriginalFilename", "RHSrvAny.exe"
             VALUE "ProductName", "Red Hat SrvAny"
             VALUE "ProductVersion", "1, 0, 0, 1"
