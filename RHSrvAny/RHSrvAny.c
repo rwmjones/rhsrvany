@@ -38,12 +38,14 @@ VOID SvcReportEvent (LPTSTR);
 VOID SvcInit (DWORD, LPTSTR *); 
 VOID ReportSvcStatus (DWORD, DWORD, DWORD);
 
-void	
-__cdecl 
-_tmain (
-	int argc, 
-	TCHAR *argv[]
-) { 
+int
+main (int argc, char **a_argv)
+{ 
+    /* For compatibility with MinGW, see:
+	http://demosten-eng.blogspot.com/2008/08/mingw-and-unicode-support.html */
+    TCHAR **argv;
+	argv = CommandLineToArgvW (GetCommandLineW (), &argc);
+
 	SERVICE_TABLE_ENTRY DispatchTable[] = { 
 		{ 
 			SVCNAME, 
@@ -59,13 +61,16 @@ _tmain (
 		) == 0 
 	) {
 		SvcInstall();
-		return;
+		return EXIT_SUCCESS;
 	}
 
 	if (!StartServiceCtrlDispatcher( DispatchTable )) 
     { 
         SvcReportEvent(TEXT("StartServiceCtrlDispatcher")); 
-    } 
+		return EXIT_FAILURE;
+    }
+
+	return EXIT_SUCCESS;
 } 
 
 VOID 
