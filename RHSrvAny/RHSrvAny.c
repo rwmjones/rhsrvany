@@ -18,9 +18,25 @@
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#else
+/* Assume we're not using autoconf, eg. for Visual C++. */
+#define HAVE_STRSAFE 1
+#define HAVE_SWPRINTF_S 1
+#define HAVE_STRINGCCHPRINTF 1
+#endif /* HAVE_CONFIG_H */
+
 #include <windows.h>
-#include <tchar.h>
+
+#include <stdio.h>
+#include <stdlib.h>
+
+#ifdef HAVE_STRSAFE
 #include <strsafe.h>
+#endif
+
+#include <tchar.h>
 
 #include "RHSrvAny.h"
 
@@ -249,9 +265,15 @@ SvcInit (
     ZeroMemory( &pi, sizeof(pi) );
 	nSize=1024;
 
+#ifdef HAVE_SWPRINTF_S
 	swprintf_s (
 		szRegistryPath,
 		nSize,
+#else
+	snwprintf (
+		szRegistryPath,
+		sizeof szRegistryPath,
+#endif
 		L"SYSTEM\\CurrentControlSet\\services\\%s\\Parameters",
 		SVCNAME
 	);
@@ -388,7 +410,12 @@ SvcReportEvent (
     if (
 		NULL != hEventSource
 	) {
-		StringCchPrintf (
+#ifdef HAVE_STRINGCCHPRINTF
+		StringCchPrintf
+#else
+		snwprintf
+#endif
+				  (
 			Buffer, 
 			80, 
 			TEXT("%s failed with %d"), 
