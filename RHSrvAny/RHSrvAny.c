@@ -81,7 +81,7 @@ SvcInstall() {
 			MAX_PATH 
 		) 
 	) {
-		printf("Cannot install service (%d)\n", GetLastError());
+	        printf("Cannot install service (%d)\n", (int) GetLastError());
 		return;
 	}
 
@@ -92,7 +92,7 @@ SvcInstall() {
 	);
  
     if (NULL == schSCManager) {
-		printf("OpenSCManager failed (%d)\n", GetLastError());
+	    printf("OpenSCManager failed (%d)\n", (int) GetLastError());
 		return;
     }
 
@@ -115,7 +115,7 @@ SvcInstall() {
     if (schService == NULL) {
         printf (
 			"CreateService failed (%d)\n", 
-			GetLastError()
+			(int) GetLastError()
 		); 
         CloseServiceHandle (schSCManager);
         return;
