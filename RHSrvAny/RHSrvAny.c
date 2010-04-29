@@ -40,7 +40,7 @@
 
 #include "RHSrvAny.h"
 
-#define SVCNAME TEXT("RHEV-apt")
+#define SVCNAME TEXT("RHSrvAny")
 
 SERVICE_STATUS gSvcStatus; 
 HANDLE ghSvcStopEvent = NULL;
