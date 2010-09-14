@@ -40,7 +40,7 @@
 
 #include "RHSrvAny.h"
 
-#define SVCNAME TEXT("RHSrvAny")
+LPCTSTR SVCNAME = TEXT("RHSrvAny");
 
 SERVICE_STATUS gSvcStatus; 
 HANDLE ghSvcStopEvent = NULL;
@@ -54,6 +54,8 @@ VOID SvcReportEvent (LPTSTR);
 VOID SvcInit (DWORD, LPTSTR *); 
 VOID ReportSvcStatus (DWORD, DWORD, DWORD);
 
+#include <libgen.h>
+
 int
 main (int argc, char **a_argv)
 { 
@@ -62,9 +64,23 @@ main (int argc, char **a_argv)
     TCHAR **argv;
 	argv = CommandLineToArgvW (GetCommandLineW (), &argc);
 
+	if( strcmp( "rhsrvany.exe", basename(a_argv[0]) ) != 0 ) {
+		char *name = strdup(basename(a_argv[0]));
+		int lpc = strlen(name);
+		for (; lpc >= 0; lpc--) {
+			if(name[lpc] == '.') {
+				name[lpc] = 0;
+				break;
+			}
+		}
+		
+		printf("Calculated service name: %s\n", name);
+		SVCNAME = (LPCTSTR)name;
+	}
+	
 	SERVICE_TABLE_ENTRY DispatchTable[] = { 
 		{ 
-			SVCNAME, 
+			(LPTSTR)SVCNAME, 
 			(LPSERVICE_MAIN_FUNCTION) SvcMain 
 		}, 
 		{ NULL, NULL } 
