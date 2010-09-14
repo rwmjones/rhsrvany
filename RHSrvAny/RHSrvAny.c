@@ -263,6 +263,7 @@ SvcMain (
 	DWORD dwArgc, 
 	LPTSTR *lpszArgv
 ) {
+	SVCNAME = lpszArgv[0];
 	gSvcStatusHandle = RegisterServiceCtrlHandler ( 
 		SVCNAME, 
 		SvcCtrlHandler
