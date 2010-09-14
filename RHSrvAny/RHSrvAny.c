@@ -68,6 +68,24 @@ wchar_t *char2wide(const char *str)
 	return result;
 }
 
+char *escape_slashes(const char *str)
+{
+	char *result = NULL;
+	if(str) {
+		int lpc = 0, llpc = 0, max = strlen(str);
+		result = malloc(2*max);
+		for(; lpc <= max; lpc++) {
+			if(str[lpc] == '\\') {
+				result[llpc++] = '\\';
+			}
+			result[llpc++] = str[lpc];
+		}
+	}
+	printf("Transformed %s into %s\n\r", str, result);
+	return result;
+}
+
+
 void create_service_key(const wchar_t *template, wchar_t *buffer, int size) 
 {
 #ifdef HAVE_SWPRINTF_S
@@ -196,37 +214,42 @@ SvcInstall(int argc, char **argv) {
 
 	fSuccess = RegOpenKey (HKEY_LOCAL_MACHINE, szRegistryPath, &key_service);
 	if(fSuccess != ERROR_SUCCESS) {
-		printf("Could not read key at '%ls' - %d", szRegistryPath, fSuccess);
+		printf("Could not read key at '%ls' - %d\n\r", szRegistryPath, fSuccess);
 		return;
 	}
 	
 	fSuccess = RegCreateKey(key_service, L"Parameters", &key_params);
 
 	if(fSuccess != ERROR_SUCCESS) {
-		printf("No key created at '%ls' - %d", szRegistryPath, fSuccess);
+		printf("No key created at '%ls' - %d\n\r", szRegistryPath, fSuccess);
 		return;
 	}
 
 	if(argc >= 3 && fSuccess == ERROR_SUCCESS) {
-		wchar_t *value = char2wide(argv[2]);
-		size_t value_bytes = 2 * (lstrlen(value) +1);
+		char    *escaped     = escape_slashes(argv[2]);
+		wchar_t *value       = char2wide(escaped);
+		size_t   value_bytes = 2 * (lstrlen(value) +1);
 		
 		fSuccess = RegSetValueEx (
 			key_params, L"CommandLine", 0, REG_SZ, (LPBYTE) value, value_bytes);
-		printf("Using '%ls' %d for command: %s (%d)\n\r",
+		printf("Using '%ls' for command: %s (%d)\n\r",
 			   value, fSuccess==ERROR_SUCCESS?"PASS":"FAIL", fSuccess);
 
+		free(escaped);
 		free(value);
 	}
 			
 	if (argc >= 4 && fSuccess == ERROR_SUCCESS) {
-		wchar_t *value = char2wide(argv[3]);
-		size_t value_bytes = 2 * (lstrlen(value) +1);
+		char    *escaped     = escape_slashes(argv[3]);
+		wchar_t *value       = char2wide(escaped);
+		size_t   value_bytes = 2 * (lstrlen(value) +1);
 
-		fSuccess = RegSetValueEx (key_params, L"PWD", 0, REG_SZ, (LPBYTE) value, value_bytes);
-		printf("Using '%ls' %d for the working directory: %s (%d)\n\r",
+		fSuccess = RegSetValueEx (
+			key_params, L"PWD", 0, REG_SZ, (LPBYTE) value, value_bytes);
+		printf("Using '%ls' for the working directory: %s (%d)\n\r",
 			   value, fSuccess==ERROR_SUCCESS?"PASS":"FAIL", fSuccess);
 
+		free(escaped);
 		free(value);
 	}	
 
