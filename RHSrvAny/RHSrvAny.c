@@ -40,13 +40,15 @@
 
 #include "RHSrvAny.h"
 
+#define DIMOF(a)	((int) (sizeof(a)/sizeof(a[0])) )
+
 LPCTSTR SVCNAME = TEXT("RHSrvAny");
 
 SERVICE_STATUS gSvcStatus; 
 HANDLE ghSvcStopEvent = NULL;
 SERVICE_STATUS_HANDLE gSvcStatusHandle; 
 
-VOID SvcInstall (void);
+VOID SvcInstall (int argc, char **argv);
 VOID WINAPI SvcCtrlHandler (DWORD); 
 VOID WINAPI SvcMain (DWORD, LPTSTR *); 
 
@@ -55,6 +57,26 @@ VOID SvcInit (DWORD, LPTSTR *);
 VOID ReportSvcStatus (DWORD, DWORD, DWORD);
 
 #include <libgen.h>
+wchar_t *char2wide(const char *str)
+{
+	wchar_t *result = NULL;
+	if(str != NULL) {
+		size_t str_size = strlen(str) + 1;
+		result = malloc(str_size * sizeof(wchar_t));
+		mbstowcs(result, str, str_size);
+	}
+	return result;
+}
+
+void create_service_key(const wchar_t *template, wchar_t *buffer, int size) 
+{
+#ifdef HAVE_SWPRINTF_S
+	swprintf_s 
+#else
+	snwprintf
+#endif
+		( buffer, size, template, SVCNAME);
+}
 
 int
 main (int argc, char **a_argv)
@@ -74,8 +96,9 @@ main (int argc, char **a_argv)
 			}
 		}
 		
-		printf("Calculated service name: %s\n", name);
-		SVCNAME = (LPCTSTR)name;
+		SVCNAME = char2wide(name);
+		printf("Calculated service name: %ls\n\r", SVCNAME);
+		free(name);
 	}
 	
 	SERVICE_TABLE_ENTRY DispatchTable[] = { 
@@ -92,7 +115,7 @@ main (int argc, char **a_argv)
 			TEXT("install")
 		) == 0 
 	) {
-		SvcInstall();
+		SvcInstall(argc, a_argv);
 		return EXIT_SUCCESS;
 	}
 
@@ -103,14 +126,18 @@ main (int argc, char **a_argv)
     }
 
 	return EXIT_SUCCESS;
-} 
+}
 
 VOID 
-SvcInstall() {
+SvcInstall(int argc, char **argv) {
 	SC_HANDLE schSCManager;
 	SC_HANDLE schService;
 	TCHAR szPath[MAX_PATH];
-
+	BOOL fSuccess = TRUE;
+	HKEY key_service;
+	HKEY key_params;
+	wchar_t szRegistryPath[1024];
+	
 	if ( 
 		!GetModuleFileName( 
 			NULL, 
@@ -118,7 +145,7 @@ SvcInstall() {
 			MAX_PATH 
 		) 
 	) {
-	        printf("Cannot install service (%d)\n", (int) GetLastError());
+	        printf("Cannot install service (%d)\n\r", (int) GetLastError());
 		return;
 	}
 
@@ -129,7 +156,7 @@ SvcInstall() {
 	);
  
     if (NULL == schSCManager) {
-	    printf("OpenSCManager failed (%d)\n", (int) GetLastError());
+	    printf("OpenSCManager failed (%d)\n\r", (int) GetLastError());
 		return;
     }
 
@@ -151,18 +178,60 @@ SvcInstall() {
  
     if (schService == NULL) {
         printf (
-			"CreateService failed (%d)\n", 
+			"CreateService failed (%d)\n\r", 
 			(int) GetLastError()
 		); 
         CloseServiceHandle (schSCManager);
         return;
     }
 	else {
-		printf("Service installed successfully\n");
+		printf("Service installed successfully\n\r");
 	}
 
     CloseServiceHandle (schService); 
     CloseServiceHandle (schSCManager);
+
+	create_service_key(
+		L"SYSTEM\\CurrentControlSet\\services\\%s", szRegistryPath, DIMOF(szRegistryPath));
+
+	fSuccess = RegOpenKey (HKEY_LOCAL_MACHINE, szRegistryPath, &key_service);
+	if(fSuccess != ERROR_SUCCESS) {
+		printf("Could not read key at '%ls' - %d", szRegistryPath, fSuccess);
+		return;
+	}
+	
+	fSuccess = RegCreateKey(key_service, L"Parameters", &key_params);
+
+	if(fSuccess != ERROR_SUCCESS) {
+		printf("No key created at '%ls' - %d", szRegistryPath, fSuccess);
+		return;
+	}
+
+	if(argc >= 3 && fSuccess == ERROR_SUCCESS) {
+		wchar_t *value = char2wide(argv[2]);
+		size_t value_bytes = 2 * (lstrlen(value) +1);
+		
+		fSuccess = RegSetValueEx (
+			key_params, L"CommandLine", 0, REG_SZ, (LPBYTE) value, value_bytes);
+		printf("Using '%ls' %d for command: %s (%d)\n\r",
+			   value, fSuccess==ERROR_SUCCESS?"PASS":"FAIL", fSuccess);
+
+		free(value);
+	}
+			
+	if (argc >= 4 && fSuccess == ERROR_SUCCESS) {
+		wchar_t *value = char2wide(argv[3]);
+		size_t value_bytes = 2 * (lstrlen(value) +1);
+
+		fSuccess = RegSetValueEx (key_params, L"PWD", 0, REG_SZ, (LPBYTE) value, value_bytes);
+		printf("Using '%ls' %d for the working directory: %s (%d)\n\r",
+			   value, fSuccess==ERROR_SUCCESS?"PASS":"FAIL", fSuccess);
+
+		free(value);
+	}	
+
+	RegCloseKey(key_params);
+	RegCloseKey(key_service);
 }
 
 VOID 
