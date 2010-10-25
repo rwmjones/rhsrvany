@@ -38,7 +38,7 @@
 
 #include <tchar.h>
 
-#include "RHSrvAny.h"
+#include "SrvAny.h"
 
 #define DIMOF(a)	((int) (sizeof(a)/sizeof(a[0])) )
 

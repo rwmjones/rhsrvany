@@ -16,6 +16,6 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
-bin_PROGRAMS = rhsrvany$(EXEEXT)
+bin_PROGRAMS = srvany$(EXEEXT)
 
-rhsrvany_SOURCES = resource.h RHSrvAny.h RHSrvAny.c
+srvany_SOURCES = resource.h SrvAny.h SrvAny.c

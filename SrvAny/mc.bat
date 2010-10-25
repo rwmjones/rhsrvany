@@ -16,6 +16,6 @@ rem You should have received a copy of the GNU General Public License
 rem along with this program; if not, write to the Free Software
 rem Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
-mc.exe -U RHSrvAny.mc
-rc.exe -r RHSrvAny.rc
-link /dll /noentry /MACHINE:x86 /out:RHSrvAny.dll RHSrvAny.res
+mc.exe -U SrvAny.mc
+rc.exe -r SrvAny.rc
+link /dll /noentry /MACHINE:x86 /out:SrvAny.dll SrvAny.res
