@@ -21,4 +21,4 @@
 # the Fedora Windows cross-compiler and invoke 'mingw32-configure'
 # instead of the normal './configure' command.
 
-SUBDIRS = RHSrvAny
+SUBDIRS = SrvAny
