@@ -45,6 +45,7 @@ static HANDLE ghSvcStopEvent = NULL;
 static SERVICE_STATUS_HANDLE gSvcStatusHandle;
 
 static int SvcInstall (void);
+static int SvcUninstall (void);
 
 VOID WINAPI SvcCtrlHandler (DWORD);
 VOID WINAPI SvcMain (DWORD, LPTSTR *);
@@ -95,6 +96,8 @@ main (int argc, char **a_argv)
 
     if (lstrcmpi(argv[i], TEXT("install")) == 0) {
         return SvcInstall();
+    } else if (lstrcmpi(argv[i], TEXT("uninstall")) == 0) {
+        return SvcUninstall();
     }
 
     SERVICE_TABLE_ENTRY DispatchTable[] = {
@@ -112,6 +115,65 @@ main (int argc, char **a_argv)
     }
 
     return EXIT_SUCCESS;
+}
+
+static int
+SvcUninstall() {
+    SC_HANDLE schSCManager = NULL;
+    SC_HANDLE schService = NULL;
+
+    schSCManager = OpenSCManager(
+        NULL,
+        NULL,
+        SC_MANAGER_ALL_ACCESS
+    );
+
+    if (NULL == schSCManager) {
+        printf("OpenSCManager failed (%d)\n", (int) GetLastError());
+        return EXIT_FAILURE;
+    }
+
+    schService = OpenService(
+        schSCManager,
+        svcname,
+        SERVICE_ALL_ACCESS
+    );
+
+    if (schService == NULL) {
+        DWORD err = GetLastError();
+        switch (err) {
+        case ERROR_ACCESS_DENIED:
+            printf("You do not have permission to uninstall this service\n");
+            break;
+
+        case ERROR_SERVICE_DOES_NOT_EXIST:
+            printf("The service does not exist\n");
+            break;
+
+        default:
+            printf("OpenService failed (%d)\n", (int) err);
+        }
+
+        goto error;
+    }
+
+    if (DeleteService(schService) == 0) {
+        printf("DeleteService failed (%d)\n", (int) GetLastError());
+        goto error;
+    } else {
+        printf("Service uninstalled successfully\n");
+    }
+
+    CloseServiceHandle (schService);
+    CloseServiceHandle (schSCManager);
+
+    return EXIT_SUCCESS;
+
+error:
+    if (schService) CloseServiceHandle (schService);
+    if (schSCManager) CloseServiceHandle (schSCManager);
+
+    return EXIT_FAILURE;
 }
 
 static int
