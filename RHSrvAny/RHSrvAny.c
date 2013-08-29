@@ -44,7 +44,7 @@ static SERVICE_STATUS gSvcStatus;
 static HANDLE ghSvcStopEvent = NULL;
 static SERVICE_STATUS_HANDLE gSvcStatusHandle;
 
-static VOID SvcInstall (void);
+static int SvcInstall (void);
 
 VOID WINAPI SvcCtrlHandler (DWORD);
 VOID WINAPI SvcMain (DWORD, LPTSTR *);
@@ -94,8 +94,7 @@ main (int argc, char **a_argv)
     }
 
     if (lstrcmpi(argv[i], TEXT("install")) == 0) {
-        SvcInstall();
-        return EXIT_SUCCESS;
+        return SvcInstall();
     }
 
     SERVICE_TABLE_ENTRY DispatchTable[] = {
@@ -115,22 +114,12 @@ main (int argc, char **a_argv)
     return EXIT_SUCCESS;
 }
 
-static VOID
+static int
 SvcInstall() {
     SC_HANDLE schSCManager;
     SC_HANDLE schService;
     TCHAR szPath[MAX_PATH];
-
-    if (
-        !GetModuleFileName(
-            NULL,
-            szPath,
-            MAX_PATH
-        )
-    ) {
-            printf("Cannot install service (%d)\n", (int) GetLastError());
-        return;
-    }
+    wchar_t imagePath[MAX_PATH];
 
     schSCManager = OpenSCManager(
         NULL,
@@ -140,7 +129,20 @@ SvcInstall() {
 
     if (NULL == schSCManager) {
         printf("OpenSCManager failed (%d)\n", (int) GetLastError());
-        return;
+        return EXIT_FAILURE;
+    }
+
+    /* Get the full path of the current executable in szPath */
+    if (GetModuleFileName(NULL, szPath, MAX_PATH) == 0) {
+        printf("GetModuleFileName failed (%d)\n", (int) GetLastError());
+        return EXIT_FAILURE;
+    }
+
+    /* Construct ImagePath, which is actually a command line in this instance */
+    if (snwprintf(imagePath, MAX_PATH, L"%s -s %s", szPath, svcname) >= MAX_PATH)
+    {
+        printf("ImagePath exceeded %d characters\n", MAX_PATH);
+        return EXIT_FAILURE;
     }
 
     schService = CreateService (
@@ -151,7 +153,7 @@ SvcInstall() {
         SERVICE_WIN32_OWN_PROCESS,
         SERVICE_AUTO_START,
         SERVICE_ERROR_NORMAL,
-        szPath,
+        imagePath,
         NULL,
         NULL,
         NULL,
@@ -160,12 +162,18 @@ SvcInstall() {
     );
 
     if (schService == NULL) {
-        printf (
-            "CreateService failed (%d)\n",
-            (int) GetLastError()
-        );
+        DWORD err = GetLastError();
+        switch (err) {
+        case ERROR_SERVICE_EXISTS:
+            printf("A service with this name already exists\n");
+            break;
+
+        default:
+            printf("CreateService failed (%d)\n", (int) err);
+        }
+
         CloseServiceHandle (schSCManager);
-        return;
+        return EXIT_FAILURE;
     }
     else {
         printf("Service installed successfully\n");
@@ -173,6 +181,8 @@ SvcInstall() {
 
     CloseServiceHandle (schService);
     CloseServiceHandle (schSCManager);
+
+    return EXIT_SUCCESS;
 }
 
 VOID
