@@ -1,6 +1,6 @@
 /* RHSrvAny - Turn any Windows program into a Windows service.
  * Written by Yuval Kashtan.
- * Copyright (C) 2010 Red Hat Inc.
+ * Copyright (C) 2010,2013 Red Hat Inc.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -39,7 +39,7 @@
 
 #include "RHSrvAny.h"
 
-#define SVCNAME TEXT("RHSrvAny")
+static TCHAR *svcname = TEXT("RHSrvAny");
 
 SERVICE_STATUS gSvcStatus;
 HANDLE ghSvcStopEvent = NULL;
@@ -53,6 +53,14 @@ VOID SvcReportEvent (LPTSTR);
 VOID SvcInit (DWORD, LPTSTR *);
 VOID ReportSvcStatus (DWORD, DWORD, DWORD);
 
+static int
+argument_error (const char *msg)
+{
+    printf("%s\n", msg);
+
+    return EXIT_FAILURE;
+}
+
 int
 main (int argc, char **a_argv)
 {
@@ -61,23 +69,42 @@ main (int argc, char **a_argv)
     TCHAR **argv;
     argv = CommandLineToArgvW (GetCommandLineW (), &argc);
 
+    size_t i;
+    for (i = 1; i < argc; i++) {
+        TCHAR *arg = argv[i];
+
+        if (arg[0] == _T('-')) {
+            if (lstrcmpi(arg + 1, _T("s")) == 0) {
+                if (i == argc) {
+                    return argument_error("Option -s requires an argument");
+                }
+
+                svcname = argv[++i];
+            }
+
+            else {
+                return argument_error("Unknown option");
+            }
+        }
+
+        /* Stop parsing arguments when we hit something which isn't an option */
+        else {
+            break;
+        }
+    }
+
+    if (lstrcmpi(argv[i], TEXT("install")) == 0) {
+        SvcInstall();
+        return EXIT_SUCCESS;
+    }
+
     SERVICE_TABLE_ENTRY DispatchTable[] = {
         {
-            SVCNAME,
+            svcname,
             (LPSERVICE_MAIN_FUNCTION) SvcMain
         },
         { NULL, NULL }
     };
-
-    if(
-        lstrcmpi(
-            argv[1],
-            TEXT("install")
-        ) == 0
-    ) {
-        SvcInstall();
-        return EXIT_SUCCESS;
-    }
 
     if (!StartServiceCtrlDispatcher( DispatchTable ))
     {
@@ -118,8 +145,8 @@ SvcInstall() {
 
     schService = CreateService (
         schSCManager,
-        SVCNAME,
-        SVCNAME,
+        svcname,
+        svcname,
         SERVICE_ALL_ACCESS,
         SERVICE_WIN32_OWN_PROCESS,
         SERVICE_AUTO_START,
@@ -155,7 +182,7 @@ SvcMain (
     LPTSTR *lpszArgv
 ) {
     gSvcStatusHandle = RegisterServiceCtrlHandler (
-        SVCNAME,
+        svcname,
         SvcCtrlHandler
     );
 
@@ -274,7 +301,7 @@ SvcInit (
         sizeof szRegistryPath,
 #endif
         L"SYSTEM\\CurrentControlSet\\services\\%s\\Parameters",
-        SVCNAME
+        svcname
     );
 
     fSuccess = RegistryRead (
@@ -403,7 +430,7 @@ SvcReportEvent (
 
     hEventSource = RegisterEventSource (
         NULL,
-        SVCNAME
+        svcname
     );
 
     if (
@@ -422,7 +449,7 @@ SvcReportEvent (
             GetLastError()
         );
 
-        lpszStrings[0] = SVCNAME;
+        lpszStrings[0] = svcname;
         lpszStrings[1] = Buffer;
 
         ReportEvent (
