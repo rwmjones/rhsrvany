@@ -39,7 +39,7 @@ dnl Check for headers which are not present in some versions of MinGW.
 AC_CHECK_HEADERS([strsafe.h])
 
 dnl Check for functions which are not present in some versions of MinGW.
-AC_CHECK_FUNCS([swprintf_s StringCchPrintf])
+AC_CHECK_FUNCS([StringCchPrintf])
 
 dnl Produce output files.
 AC_CONFIG_HEADERS([config.h])

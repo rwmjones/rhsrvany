@@ -22,7 +22,6 @@
 #else
 /* Assume we're not using autoconf, eg. for Visual C++. */
 #define HAVE_STRSAFE 1
-#define HAVE_SWPRINTF_S 1
 #define HAVE_STRINGCCHPRINTF 1
 #endif /* HAVE_CONFIG_H */
 
@@ -291,15 +290,9 @@ SvcInit (
     ZeroMemory( &pi, sizeof(pi) );
     nSize=1024;
 
-#ifdef HAVE_SWPRINTF_S
-    swprintf_s (
-        szRegistryPath,
-        nSize,
-#else
     snwprintf (
         szRegistryPath,
         sizeof szRegistryPath,
-#endif
         L"SYSTEM\\CurrentControlSet\\services\\%s\\Parameters",
         svcname
     );
