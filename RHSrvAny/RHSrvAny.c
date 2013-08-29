@@ -40,17 +40,18 @@
 
 static TCHAR *svcname = TEXT("RHSrvAny");
 
-SERVICE_STATUS gSvcStatus;
-HANDLE ghSvcStopEvent = NULL;
-SERVICE_STATUS_HANDLE gSvcStatusHandle;
+static SERVICE_STATUS gSvcStatus;
+static HANDLE ghSvcStopEvent = NULL;
+static SERVICE_STATUS_HANDLE gSvcStatusHandle;
 
-VOID SvcInstall (void);
+static VOID SvcInstall (void);
+
 VOID WINAPI SvcCtrlHandler (DWORD);
 VOID WINAPI SvcMain (DWORD, LPTSTR *);
 
-VOID SvcReportEvent (LPTSTR);
-VOID SvcInit (DWORD, LPTSTR *);
-VOID ReportSvcStatus (DWORD, DWORD, DWORD);
+static VOID SvcReportEvent (LPTSTR);
+static VOID SvcInit (DWORD, LPTSTR *);
+static VOID ReportSvcStatus (DWORD, DWORD, DWORD);
 
 static int
 argument_error (const char *msg)
@@ -114,7 +115,7 @@ main (int argc, char **a_argv)
     return EXIT_SUCCESS;
 }
 
-VOID
+static VOID
 SvcInstall() {
     SC_HANDLE schSCManager;
     SC_HANDLE schService;
@@ -205,7 +206,7 @@ SvcMain (
     );
 }
 
-BOOL
+static BOOL
 RegistryRead (
     HKEY hHive,
     wchar_t *szKeyPath,
@@ -240,7 +241,7 @@ RegistryRead (
     return (FALSE);
 }
 
-VOID
+static VOID
 SvcInit (
     DWORD dwArgc,
     LPTSTR *lpszArgv
@@ -352,7 +353,8 @@ SvcInit (
     }
 }
 
-VOID ReportSvcStatus (
+static VOID
+ReportSvcStatus (
     DWORD dwCurrentState,
     DWORD dwWin32ExitCode,
     DWORD dwWaitHint
@@ -413,7 +415,7 @@ SvcCtrlHandler (
 }
 
 /* Logs messages to the event log */
-VOID
+static VOID
 SvcReportEvent (
     LPTSTR szFunction
 ) {
