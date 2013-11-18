@@ -29,12 +29,11 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <tchar.h>
 
 #ifdef HAVE_STRSAFE
 #include <strsafe.h>
 #endif
-
-#include <tchar.h>
 
 #include "RHSrvAny.h"
 
