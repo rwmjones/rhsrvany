@@ -61,14 +61,30 @@ argument_error (const char *msg)
     return EXIT_FAILURE;
 }
 
-int
-main (int argc, char **a_argv)
-{
-    /* For compatibility with MinGW, see:
-    http://demosten-eng.blogspot.com/2008/08/mingw-and-unicode-support.html */
-    TCHAR **argv;
-    argv = CommandLineToArgvW (GetCommandLineW (), &argc);
+static int compat_tmain (int argc, TCHAR *argv[]);
 
+#ifdef __MINGW32__
+int
+main (int argc, char **argv)
+{
+#ifdef UNICODE
+    TCHAR **w_argv = CommandLineToArgvW(GetCommandLineW(), &argc);
+    return compat_tmain(argc, w_argv);
+#else
+    return compat_tmain(argc, argv);
+#endif
+}
+#else
+int
+_tmain(int argc, TCHAR *argv[])
+{
+    return compat_tmain(argc, argv);
+}
+#endif
+
+static int
+compat_tmain (int argc, TCHAR *argv[])
+{
     size_t i;
     for (i = 1; i < argc; i++) {
         TCHAR *arg = argv[i];
