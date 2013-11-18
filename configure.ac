@@ -32,7 +32,7 @@ dnl If the host is Windows, define _WIN32_WINNT and others.
 AC_CANONICAL_HOST
 case $host in
     *mingw*|*cygwin*|*win32*)
-        CFLAGS="$CFLAGS -D_WIN32_WINNT=0x0500 -DUNICODE -D_UNICODE" ;;
+        CFLAGS="$CFLAGS -Wall -Werror -D_WIN32_WINNT=0x0500 -DUNICODE -D_UNICODE" ;;
 esac
 
 dnl Check for headers which are not present in some versions of MinGW.
