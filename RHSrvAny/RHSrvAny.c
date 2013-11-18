@@ -97,8 +97,8 @@ compat_tmain (int argc, TCHAR *argv[])
     for (i = 1; i < argc; i++) {
         TCHAR *arg = argv[i];
 
-        if (arg[0] == _T('-')) {
-            if (lstrcmpi(arg + 1, _T("s")) == 0) {
+        if (arg[0] == TEXT('-')) {
+            if (lstrcmpi(arg + 1, TEXT("s")) == 0) {
                 if (i == argc) {
                     return argument_error("Option -s requires an argument");
                 }
@@ -201,7 +201,7 @@ SvcInstall() {
     SC_HANDLE schSCManager;
     SC_HANDLE schService;
     TCHAR szPath[MAX_PATH];
-    wchar_t imagePath[MAX_PATH];
+    TCHAR imagePath[MAX_PATH];
 
     schSCManager = OpenSCManager(
         NULL,
@@ -301,9 +301,9 @@ SvcMain (
 static BOOL
 RegistryRead (
     HKEY hHive,
-    wchar_t *szKeyPath,
-    wchar_t *szValue,
-    wchar_t *szData,
+    TCHAR *szKeyPath,
+    TCHAR *szValue,
+    TCHAR *szData,
     DWORD *nSize
 ) {
     HKEY hKey;
@@ -341,10 +341,10 @@ SvcInit (
     DWORD nSize;
     BOOL fSuccess;
     STARTUPINFO si;
-    wchar_t szPWD[1024];
+    TCHAR szPWD[1024];
     PROCESS_INFORMATION pi;
-    wchar_t szCmdLine[1024];
-    wchar_t szRegistryPath[1024];
+    TCHAR szCmdLine[1024];
+    TCHAR szRegistryPath[1024];
 
     // TO_DO: Declare and set any required variables.
     //   Be sure to periodically call ReportSvcStatus() with
@@ -383,17 +383,17 @@ SvcInit (
     ZeroMemory( &pi, sizeof(pi) );
     nSize=1024;
 
-    snwprintf (
+    SNPRINTF(
         szRegistryPath,
         sizeof szRegistryPath,
-        L"SYSTEM\\CurrentControlSet\\services\\%s\\Parameters",
+        TEXT("SYSTEM\\CurrentControlSet\\services\\%s\\Parameters"),
         svcname
     );
 
     fSuccess = RegistryRead (
         HKEY_LOCAL_MACHINE,
         szRegistryPath,
-        L"CommandLine",
+        TEXT("CommandLine"),
         szCmdLine,
         &nSize
     );
@@ -402,7 +402,7 @@ SvcInit (
         fSuccess = RegistryRead (
             HKEY_LOCAL_MACHINE,
             szRegistryPath,
-            L"PWD",
+            TEXT("PWD"),
             szPWD,
             &nSize
         );
