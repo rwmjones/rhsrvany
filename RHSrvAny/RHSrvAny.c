@@ -35,6 +35,12 @@
 #include <strsafe.h>
 #endif
 
+#ifdef HAVE_STRINGCCHPRINTF
+#define SNPRINTF StringCchPrintf
+#else
+#define SNPRINTF snwprintf
+#endif
+
 #include "RHSrvAny.h"
 
 static TCHAR *svcname = TEXT("RHSrvAny");
@@ -215,7 +221,7 @@ SvcInstall() {
     }
 
     /* Construct ImagePath, which is actually a command line in this instance */
-    if (snwprintf(imagePath, MAX_PATH, L"%s -s %s", szPath, svcname) >= MAX_PATH)
+    if (SNPRINTF(imagePath, MAX_PATH, TEXT("%s -s %s"), szPath, svcname) >= MAX_PATH)
     {
         printf("ImagePath exceeded %d characters\n", MAX_PATH);
         return EXIT_FAILURE;
@@ -517,12 +523,7 @@ SvcReportEvent (
     if (
         NULL != hEventSource
     ) {
-#ifdef HAVE_STRINGCCHPRINTF
-        StringCchPrintf
-#else
-        snwprintf
-#endif
-                  (
+        SNPRINTF(
             Buffer,
             80,
             TEXT("%s failed with %d"),
