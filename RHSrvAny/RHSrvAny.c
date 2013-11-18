@@ -85,7 +85,9 @@ _tmain(int argc, TCHAR *argv[])
 static int
 compat_tmain (int argc, TCHAR *argv[])
 {
-    size_t i;
+    SERVICE_TABLE_ENTRY DispatchTable[2];
+    int i;
+
     for (i = 1; i < argc; i++) {
         TCHAR *arg = argv[i];
 
@@ -115,13 +117,10 @@ compat_tmain (int argc, TCHAR *argv[])
         return SvcUninstall();
     }
 
-    SERVICE_TABLE_ENTRY DispatchTable[] = {
-        {
-            svcname,
-            (LPSERVICE_MAIN_FUNCTION) SvcMain
-        },
-        { NULL, NULL }
-    };
+    DispatchTable[0].lpServiceName = svcname;
+    DispatchTable[0].lpServiceProc = (LPSERVICE_MAIN_FUNCTION) SvcMain;
+    DispatchTable[1].lpServiceName = NULL;
+    DispatchTable[1].lpServiceProc = NULL;
 
     if (!StartServiceCtrlDispatcher( DispatchTable ))
     {
