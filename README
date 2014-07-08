@@ -1,0 +1,21 @@
+When you need to run some program or batch script as a Windows
+service, you either have to modify the program so it calls the Windows
+service APIs (impossible for a batch script), or you use "SrvAny" to
+turn the program/script into a service.
+
+Unfortunately SrvAny is a proprietary program.  This is a free
+software equivalent.
+
+For more information, see:
+
+http://rwmj.wordpress.com/2010/04/29/tip-install-a-service-in-a-windows-vm/#content
+
+Please send patches etc to the virt-tools mailing list:
+
+http://www.redhat.com/mailman/listinfo/virt-tools-list
+
+This program was originally written by Yuval Kashtan as part of the
+Qumranet / RHEV-M / oVirt project, and released as free software by
+Red Hat.
+
+-- Richard W.M. Jones, 2014-07-08 --
