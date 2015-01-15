@@ -113,14 +113,13 @@ compat_tmain (int argc, TCHAR *argv[])
 
         /* Stop parsing arguments when we hit something which isn't an option */
         else {
+            if (lstrcmpi(arg, TEXT("install")) == 0) {
+                return SvcInstall();
+            } else if (lstrcmpi(arg, TEXT("uninstall")) == 0) {
+                return SvcUninstall();
+            }
             break;
         }
-    }
-
-    if (lstrcmpi(argv[i], TEXT("install")) == 0) {
-        return SvcInstall();
-    } else if (lstrcmpi(argv[i], TEXT("uninstall")) == 0) {
-        return SvcUninstall();
     }
 
     DispatchTable[0].lpServiceName = svcname;
