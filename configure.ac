@@ -43,5 +43,5 @@ AC_CHECK_FUNCS([StringCchPrintf])
 
 dnl Produce output files.
 AC_CONFIG_HEADERS([config.h])
-AC_CONFIG_FILES([Makefile RHSrvAny/Makefile])
+AC_CONFIG_FILES([Makefile RHSrvAny/Makefile pnp_wait/Makefile])
 AC_OUTPUT

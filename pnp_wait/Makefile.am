@@ -1,6 +1,6 @@
-# RHSrvAny - Turn any Windows program into a Windows service.
-# Written by Yuval Kashtan.
-# Copyright (C) 2010 Red Hat Inc.
+# pnp_wait - wait for PnP installation activities to complete.
+# Author: Roman Kagan <rkagan@virtuozzo.com>
+# Copyright (C) 2016 Parallels IP Holdings GmbH.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -16,9 +16,7 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
-# Note that this program only makes sense when cross-compiled as a
-# Windows program.  Therefore you probably need to use something like
-# the Fedora Windows cross-compiler and invoke 'mingw32-configure'
-# instead of the normal './configure' command.
+bin_PROGRAMS = pnp_wait$(EXEEXT)
 
-SUBDIRS = RHSrvAny pnp_wait
+pnp_wait_SOURCES = pnp_wait.c
+pnp_wait_LDADD = -lcfgmgr32
