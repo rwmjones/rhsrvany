@@ -35,12 +35,6 @@ case $host in
         CFLAGS="$CFLAGS -Wall -Werror -D_WIN32_WINNT=0x0500 -DUNICODE -D_UNICODE" ;;
 esac
 
-dnl Check for headers which are not present in some versions of MinGW.
-AC_CHECK_HEADERS([strsafe.h])
-
-dnl Check for functions which are not present in some versions of MinGW.
-AC_CHECK_FUNCS([StringCchPrintf])
-
 dnl Produce output files.
 AC_CONFIG_HEADERS([config.h])
 AC_CONFIG_FILES([Makefile RHSrvAny/Makefile pnp_wait/Makefile])

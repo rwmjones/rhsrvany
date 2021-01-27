@@ -19,10 +19,6 @@
 
 #ifdef HAVE_CONFIG_H
 #include <config.h>
-#else
-/* Assume we're not using autoconf, eg. for Visual C++. */
-#define HAVE_STRSAFE 1
-#define HAVE_STRINGCCHPRINTF 1
 #endif /* HAVE_CONFIG_H */
 
 #include <windows.h>
@@ -30,16 +26,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <tchar.h>
-
-#ifdef HAVE_STRSAFE
 #include <strsafe.h>
-#endif
 
-#ifdef HAVE_STRINGCCHPRINTF
 #define SNPRINTF StringCchPrintf
-#else
-#define SNPRINTF snwprintf
-#endif
 
 #include "RHSrvAny.h"
 
