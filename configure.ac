@@ -21,7 +21,8 @@
 # the Fedora Windows cross-compiler and invoke 'mingw32-configure'
 # instead of the normal './configure' command.
 
-AC_INIT([RHSrvAny],[1.0.0])
+# See also RHSrvAny/RHSrvAnyInfo.rc
+AC_INIT([RHSrvAny],[1.1])
 AM_INIT_AUTOMAKE([foreign])
 
 AC_PROG_CC_STDC

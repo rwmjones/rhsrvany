@@ -53,8 +53,8 @@ END
 //
 
 VS_VERSION_INFO VERSIONINFO
- FILEVERSION 1,0,0,1
- PRODUCTVERSION 1,0,0,1
+ FILEVERSION 1,1,0,0
+ PRODUCTVERSION 1,1,0,0
  FILEFLAGSMASK 0x17L
 #ifdef _DEBUG
  FILEFLAGS 0x1L
@@ -71,12 +71,12 @@ BEGIN
         BEGIN
             VALUE "CompanyName", "Red Hat Inc."
             VALUE "FileDescription", "Red Hat Service Application"
-            VALUE "FileVersion", "1, 0, 0, 1"
+            VALUE "FileVersion", "1.1"
             VALUE "InternalName", "RHSrvAny"
             VALUE "LegalCopyright", "Copyright (C) 2010 Red Hat Inc."
             VALUE "OriginalFilename", "RHSrvAny.exe"
             VALUE "ProductName", "Red Hat SrvAny"
-            VALUE "ProductVersion", "1, 0, 0, 1"
+            VALUE "ProductVersion", "1.1"
         END
     END
     BLOCK "VarFileInfo"
